@@ -1,0 +1,7 @@
+# Um "servidor Linux" de laboratório para o capítulo 17: Ubuntu 22.04,
+# a mesma versão do SDK que o Delphi usa para compilar, com as bibliotecas
+# que os serviços carregam em tempo de execução.
+FROM ubuntu:22.04
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends libpq5 libcurl4 ca-certificates procps \
+ && rm -rf /var/lib/apt/lists/*

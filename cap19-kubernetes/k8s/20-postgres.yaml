@@ -1,0 +1,97 @@
+# PostgreSQL para o laboratório do capítulo 19.
+# Um Deployment com um disco persistente é o jeito mais simples de começar.
+# No capítulo 20, ele vira um StatefulSet, o recurso feito para bancos.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+  namespace: eventos
+data:
+  01-create-databases.sql: |
+    CREATE DATABASE event_db;
+    CREATE DATABASE customer_db;
+    CREATE DATABASE ticket_db;
+---
+# Um pedido de disco: "preciso de 1 GB que sobreviva aos Pods".
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data
+  namespace: eventos
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: eventos
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/part-of: eventos
+spec:
+  replicas: 1
+  # O disco só pode estar ligado a um Pod por vez: primeiro derruba o velho.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgres
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: postgres
+        app.kubernetes.io/part-of: eventos
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:17
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: eventos
+            - name: POSTGRES_DB
+              value: eventos
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: eventos-secrets
+                  key: DB_PASSWORD
+            # O disco novo vem com uma pasta lost+found; o PostgreSQL
+            # quer uma pasta vazia, então usamos uma subpasta.
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "eventos", "-d", "eventos"]
+            periodSeconds: 5
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+            - name: init
+              mountPath: /docker-entrypoint-initdb.d
+              readOnly: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: postgres-data
+        - name: init
+          configMap:
+            name: postgres-init
+---
+# Um nome fixo na rede do cluster: os serviços se conectam em "postgres:5432".
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: eventos
+spec:
+  selector:
+    app.kubernetes.io/name: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432

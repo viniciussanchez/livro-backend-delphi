@@ -1,0 +1,38 @@
+{
+	"hash": "d41d8cd98f00b204e9800998ecf8427e",
+	"updated": "2026-10-15T12:38:14.993463-03:00",
+	"installedModules": {
+		"github.com/gabrielbaltazar/gbswagger": {
+			"name": "gbswagger",
+			"version": "3.1.0",
+			"hash": "1d45cb3210674c8eca2d9fe24c675c57",
+			"artifacts": {},
+			"failed": false,
+			"changed": false
+		},
+		"github.com/hashload/horse": {
+			"name": "horse",
+			"version": "3.3.14",
+			"hash": "9061c9e981161dd1a6ed15fa1e727c78",
+			"artifacts": {},
+			"failed": false,
+			"changed": false
+		},
+		"github.com/hashload/jhonson": {
+			"name": "jhonson",
+			"version": "1.2.5",
+			"hash": "5a116b8a6832a4ee5f061ef1ae18ebbe",
+			"artifacts": {},
+			"failed": false,
+			"changed": false
+		},
+		"github.com/viniciussanchez/restrequest4delphi": {
+			"name": "restrequest4delphi",
+			"version": "v4.0.34",
+			"hash": "a3d820500abd6d21f7af1c254c7c5b75",
+			"artifacts": {},
+			"failed": false,
+			"changed": false
+		}
+	}
+}

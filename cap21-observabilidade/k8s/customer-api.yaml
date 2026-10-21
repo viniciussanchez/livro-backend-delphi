@@ -1,0 +1,115 @@
+# customer-api (capítulo 20).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer-api
+  labels:
+    app.kubernetes.io/name: customer-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: customer-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      # Capítulo 21: avisa o Prometheus que este Pod tem /metrics.
+      annotations:
+        prometheus.io/scrape: "true"
+      labels:
+        app.kubernetes.io/name: customer-api
+    spec:
+      terminationGracePeriodSeconds: 20
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+      # Antes do serviço, um contêiner que só espera o banco aceitar conexões.
+      # O Kubernetes não tem "depends_on": cada peça espera o que precisa.
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:17
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - until pg_isready -h postgres -p 5432 -U eventos; do echo "esperando o banco"; sleep 2; done
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+      containers:
+        - name: customer-api
+          image: eventos/customer-api
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 9002
+          envFrom:
+            - configMapRef:
+                name: eventos-config
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: eventos-secrets
+                  key: DB_PASSWORD
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: eventos-secrets
+                  key: JWT_SECRET
+            - name: ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: eventos-secrets
+                  key: ADMIN_EMAIL
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: eventos-secrets
+                  key: ADMIN_PASSWORD
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              cpu: 500m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 2
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+            failureThreshold: 2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: customer-api
+  labels:
+    app.kubernetes.io/name: customer-api
+spec:
+  selector:
+    app.kubernetes.io/name: customer-api
+  ports:
+    - name: http
+      port: 9002
+      targetPort: http

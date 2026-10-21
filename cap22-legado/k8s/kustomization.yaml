@@ -1,0 +1,40 @@
+# A plataforma inteira no Kubernetes (capítulos 20 e 21).
+#
+#   kubectl apply -k k8s
+#
+# O Kustomize vem dentro do kubectl. Ele junta os arquivos abaixo, coloca
+# todos no namespace "eventos", gera o Secret a partir do .env e troca as
+# etiquetas das imagens num lugar só.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: eventos
+
+resources:
+  - namespace.yaml
+  - config.yaml
+  - postgres.yaml
+  - event-api.yaml
+  - customer-api.yaml
+  - ticket-api.yaml
+  - api-gateway.yaml
+  - prometheus.yaml
+
+# Os segredos vêm do arquivo k8s/.env, que nunca vai para o Git
+# (veja .env.example). Precisa de DB_PASSWORD, JWT_SECRET,
+# ADMIN_EMAIL e ADMIN_PASSWORD.
+secretGenerator:
+  - name: eventos-secrets
+    envs:
+      - .env
+
+# A versão de cada imagem fica aqui, e não espalhada pelos manifestos.
+images:
+  - name: eventos/event-api
+    newTag: "1.1.1"
+  - name: eventos/customer-api
+    newTag: "1.1.1"
+  - name: eventos/ticket-api
+    newTag: "1.1.1"
+  - name: eventos/api-gateway
+    newTag: "1.1.1"

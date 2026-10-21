@@ -1,0 +1,16 @@
+# Configuração comum que não é segredo. Cada serviço lê só o que declara
+# em Platform.Config (capítulo 14) e ignora o resto.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eventos-config
+data:
+  APP_ENV: production
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_USER: eventos
+  DB_POOL_SIZE: "10"
+  EVENT_API_URL: http://event-api:9001
+  CUSTOMER_API_URL: http://customer-api:9002
+  TICKET_API_URL: http://ticket-api:9003
+  CORS_ORIGINS: http://localhost:5173

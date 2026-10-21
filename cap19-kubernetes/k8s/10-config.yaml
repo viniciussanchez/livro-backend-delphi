@@ -1,0 +1,13 @@
+# Configuração que não é segredo: pode ir para o Git.
+# Os nomes são as mesmas variáveis de ambiente do capítulo 14.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eventos-config
+  namespace: eventos
+data:
+  APP_ENV: production
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_USER: eventos
+  DB_POOL_SIZE: "10"

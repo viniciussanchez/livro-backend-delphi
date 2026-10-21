@@ -1,0 +1,12 @@
+{
+	"name": "customer-api",
+	"description": "",
+	"version": "1.0.0",
+	"homepage": "",
+	"mainsrc": "./",
+	"projects": [],
+	"dependencies": {
+		"github.com/hashload/horse": "^3.3.14",
+		"github.com/hashload/jhonson": "^1.2.5"
+	}
+}

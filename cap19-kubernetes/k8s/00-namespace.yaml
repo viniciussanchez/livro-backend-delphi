@@ -1,0 +1,7 @@
+# Um "espaço de nomes" só para a plataforma de eventos (capítulo 19).
+# Tudo o que criarmos fica aqui dentro, e um único comando apaga tudo:
+#   kubectl delete namespace eventos
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: eventos

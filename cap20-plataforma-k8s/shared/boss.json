@@ -1,0 +1,14 @@
+{
+	"name": "eventos-platform",
+	"description": "Units compartilhadas pelos microsserviços da plataforma de eventos",
+	"version": "1.0.0",
+	"homepage": "",
+	"mainsrc": "src",
+	"projects": [],
+	"dependencies": {
+		"github.com/hashload/horse": "^3.3.14",
+		"github.com/hashload/jhonson": "^1.2.5",
+		"github.com/gabrielbaltazar/gbswagger": "^3.1.0",
+		"github.com/viniciussanchez/restrequest4delphi": "^4.0.34"
+	}
+}

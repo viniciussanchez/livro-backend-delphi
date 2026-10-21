@@ -1,0 +1,64 @@
+﻿program EventApi;
+
+{$APPTYPE CONSOLE}
+
+uses
+  System.SysUtils,
+  Horse,
+  Horse.Jhonson,
+  Platform.Exceptions in '..\shared\src\Platform.Exceptions.pas',
+  Platform.Dates in '..\shared\src\Platform.Dates.pas',
+  Platform.Http in '..\shared\src\Platform.Http.pas',
+  Platform.Database in '..\shared\src\Platform.Database.pas',
+  Platform.Migrations in '..\shared\src\Platform.Migrations.pas',
+  Platform.Repository in '..\shared\src\Platform.Repository.pas',
+  EventApi.Entity.Category in 'src\Domain\EventApi.Entity.Category.pas',
+  EventApi.Entity.Venue in 'src\Domain\EventApi.Entity.Venue.pas',
+  EventApi.Entity.Event in 'src\Domain\EventApi.Entity.Event.pas',
+  EventApi.Entity.Batch in 'src\Domain\EventApi.Entity.Batch.pas',
+  EventApi.DTO.Category in 'src\DTO\EventApi.DTO.Category.pas',
+  EventApi.DTO.Venue in 'src\DTO\EventApi.DTO.Venue.pas',
+  EventApi.DTO.Event in 'src\DTO\EventApi.DTO.Event.pas',
+  EventApi.Repository.Category in 'src\Repository\EventApi.Repository.Category.pas',
+  EventApi.Repository.Venue in 'src\Repository\EventApi.Repository.Venue.pas',
+  EventApi.Repository.Event in 'src\Repository\EventApi.Repository.Event.pas',
+  EventApi.Repository.Batch in 'src\Repository\EventApi.Repository.Batch.pas',
+  EventApi.Repository.Category.FireDAC in 'src\Repository\EventApi.Repository.Category.FireDAC.pas',
+  EventApi.Repository.Venue.FireDAC in 'src\Repository\EventApi.Repository.Venue.FireDAC.pas',
+  EventApi.Repository.Event.FireDAC in 'src\Repository\EventApi.Repository.Event.FireDAC.pas',
+  EventApi.Repository.Batch.FireDAC in 'src\Repository\EventApi.Repository.Batch.FireDAC.pas',
+  EventApi.Service.Category in 'src\Service\EventApi.Service.Category.pas',
+  EventApi.Service.Venue in 'src\Service\EventApi.Service.Venue.pas',
+  EventApi.Service.Event in 'src\Service\EventApi.Service.Event.pas',
+  EventApi.Controller.Category in 'src\Controller\EventApi.Controller.Category.pas',
+  EventApi.Controller.Venue in 'src\Controller\EventApi.Controller.Venue.pas',
+  EventApi.Controller.Event in 'src\Controller\EventApi.Controller.Event.pas',
+  EventApi.Migrations in 'src\EventApi.Migrations.pas',
+  EventApi.Container in 'src\EventApi.Container.pas';
+
+begin
+  try
+    TDatabase.Configure(EVENT_DB, 'event_db', 'event-api');
+    TMigrator.Run(EVENT_DB, EventApi.Migrations.Migrations);
+  except
+    on E: Exception do
+    begin
+      Writeln('Falha ao preparar o banco de dados: ' + E.Message);
+      ExitCode := 1;
+      Exit;
+    end;
+  end;
+
+  THorse.Use(Jhonson);
+
+  EventApi.Controller.Category.Registry;
+  EventApi.Controller.Venue.Registry;
+  EventApi.Controller.Event.Registry;
+
+  THorse.Listen(9001,
+    procedure
+    begin
+      Writeln(Format('event-api rodando em http://localhost:%d', [THorse.Port]));
+      Writeln('Pressione Ctrl+C para encerrar.');
+    end);
+end.

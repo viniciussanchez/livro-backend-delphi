@@ -1,0 +1,130 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{1372F790-131E-4C40-BF76-69170F5C5A3A}</ProjectGuid>
+        <ProjectVersion>20.3</ProjectVersion>
+        <FrameworkType>None</FrameworkType>
+        <AppType>Console</AppType>
+        <MainSource>TicketApi.dpr</MainSource>
+        <Base>True</Base>
+        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <TargetedPlatforms>3</TargetedPlatforms>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+        <Base_Win32>true</Base_Win32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+        <Base_Win64>true</Base_Win64>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <SanitizedProjectName>TicketApi</SanitizedProjectName>
+        <DCC_DcuOutput>.\$(Platform)\$(Config)</DCC_DcuOutput>
+        <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
+        <DCC_E>false</DCC_E>
+        <DCC_N>false</DCC_N>
+        <DCC_S>false</DCC_S>
+        <DCC_F>false</DCC_F>
+        <DCC_K>false</DCC_K>
+        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_UnitSearchPath>$(DCC_UnitSearchPath);modules\.dcp;modules\.dcu;modules;modules\gbswagger\Source\Core;modules\gbswagger\Source\Datasnap;modules\gbswagger\Source\Horse;modules\gbswagger\Source\Validator;modules\horse\src;modules\jhonson\src;modules\restrequest4delphi\src</DCC_UnitSearchPath>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+        <DCC_DebugDCUs>true</DCC_DebugDCUs>
+        <DCC_Optimize>false</DCC_Optimize>
+        <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+        <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+        <DCC_RemoteDebug>true</DCC_RemoteDebug>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+        <DCC_DebugInformation>0</DCC_DebugInformation>
+    </PropertyGroup>
+    <ItemGroup>
+        <DelphiCompile Include="$(MainSource)">
+            <MainSource>MainSource</MainSource>
+        </DelphiCompile>
+        <DCCReference Include="..\shared\src\Platform.Exceptions.pas"/>
+        <DCCReference Include="..\shared\src\Platform.Dates.pas"/>
+        <DCCReference Include="..\shared\src\Platform.Validation.pas"/>
+        <DCCReference Include="..\shared\src\Platform.Http.pas"/>
+        <DCCReference Include="..\shared\src\Platform.Middleware.Errors.pas"/>
+        <DCCReference Include="..\shared\src\Platform.Docs.pas"/>
+        <DCCReference Include="..\shared\src\Platform.Jwt.pas"/>
+        <DCCReference Include="..\shared\src\Platform.Auth.pas"/>
+        <DCCReference Include="..\shared\src\Platform.Integration.pas"/>
+        <DCCReference Include="..\shared\src\Platform.Transactions.pas"/>
+        <DCCReference Include="..\shared\src\Platform.Database.pas"/>
+        <DCCReference Include="..\shared\src\Platform.Migrations.pas"/>
+        <DCCReference Include="..\shared\src\Platform.Repository.pas"/>
+        <DCCReference Include="src\Domain\TicketApi.Entity.Batch.pas"/>
+        <DCCReference Include="src\Domain\TicketApi.Entity.Reservation.pas"/>
+        <DCCReference Include="src\Domain\TicketApi.TicketCode.pas"/>
+        <DCCReference Include="src\Domain\TicketApi.Exceptions.pas"/>
+        <DCCReference Include="src\Domain\TicketApi.Partners.pas"/>
+        <DCCReference Include="src\Integration\TicketApi.Integration.EventApi.pas"/>
+        <DCCReference Include="src\Integration\TicketApi.Integration.CustomerApi.pas"/>
+        <DCCReference Include="src\Domain\TicketApi.Entity.Report.pas"/>
+        <DCCReference Include="src\DTO\TicketApi.DTO.pas"/>
+        <DCCReference Include="src\DTO\TicketApi.DTO.Report.pas"/>
+        <DCCReference Include="src\Repository\TicketApi.Repository.pas"/>
+        <DCCReference Include="src\Repository\TicketApi.Repository.FireDAC.pas"/>
+        <DCCReference Include="src\Repository\TicketApi.Repository.Report.pas"/>
+        <DCCReference Include="src\Repository\TicketApi.Repository.Report.FireDAC.pas"/>
+        <DCCReference Include="src\Service\TicketApi.Service.pas"/>
+        <DCCReference Include="src\Service\TicketApi.Service.Report.pas"/>
+        <DCCReference Include="src\Controller\TicketApi.Controller.pas"/>
+        <DCCReference Include="src\Controller\TicketApi.Controller.Report.pas"/>
+        <DCCReference Include="src\Docs\TicketApi.Docs.pas"/>
+        <DCCReference Include="src\TicketApi.Migrations.pas"/>
+        <DCCReference Include="src\TicketApi.Container.pas"/>
+        <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Debug">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Release">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Delphi.Personality.12</Borland.Personality>
+        <Borland.ProjectType>Application</Borland.ProjectType>
+        <BorlandProject>
+            <Delphi.Personality>
+                <Source>
+                    <Source Name="MainSource">TicketApi.dpr</Source>
+                </Source>
+            </Delphi.Personality>
+            <Platforms>
+                <Platform value="Win32">True</Platform>
+                <Platform value="Win64">True</Platform>
+            </Platforms>
+        </BorlandProject>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
+    <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+</Project>

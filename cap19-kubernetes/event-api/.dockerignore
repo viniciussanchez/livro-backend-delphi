@@ -1,0 +1,3 @@
+# Só o executável Linux entra no contexto do docker build.
+*
+!Linux64/Release/EventApi

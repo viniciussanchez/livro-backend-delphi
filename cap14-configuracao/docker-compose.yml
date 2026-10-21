@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: eventos-postgres
+    environment:
+      POSTGRES_USER: eventos
+      POSTGRES_PASSWORD: eventos
+      POSTGRES_DB: eventos
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eventos -d eventos"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:

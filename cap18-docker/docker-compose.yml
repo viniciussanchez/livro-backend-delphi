@@ -1,0 +1,86 @@
+# A plataforma inteira em contêineres (capítulo 18).
+#
+#   docker compose up -d --build
+#
+# Os segredos vêm do arquivo .env, ao lado deste (veja .env.example).
+# Só o gateway fica exposto, na porta 9000. O banco e os três serviços
+# conversam numa rede interna que o Docker cria para o projeto.
+name: eventos
+
+# Variáveis que todos os serviços com banco recebem. O "&" dá um nome ao
+# bloco, e o "<<: *" o reaproveita mais abaixo.
+x-database-env: &database-env
+  DB_HOST: postgres
+  DB_PASSWORD: ${DB_PASSWORD:?defina DB_PASSWORD no arquivo .env}
+  JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET no arquivo .env}
+
+x-service: &service
+  restart: unless-stopped
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: eventos
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?defina DB_PASSWORD no arquivo .env}
+      POSTGRES_DB: eventos
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eventos -d eventos"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  event-api:
+    <<: *service
+    build: ./event-api
+    image: eventos/event-api:cap18
+    environment:
+      <<: *database-env
+
+  customer-api:
+    <<: *service
+    build: ./customer-api
+    image: eventos/customer-api:cap18
+    environment:
+      <<: *database-env
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@eventos.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?defina ADMIN_PASSWORD no arquivo .env}
+
+  ticket-api:
+    <<: *service
+    build: ./ticket-api
+    image: eventos/ticket-api:cap18
+    environment:
+      <<: *database-env
+      # Na rede do Docker, cada serviço é encontrado pelo nome.
+      EVENT_API_URL: http://event-api:9001
+      CUSTOMER_API_URL: http://customer-api:9002
+
+  api-gateway:
+    build: ./api-gateway
+    image: eventos/api-gateway:cap18
+    restart: unless-stopped
+    environment:
+      EVENT_API_URL: http://event-api:9001
+      CUSTOMER_API_URL: http://customer-api:9002
+      TICKET_API_URL: http://ticket-api:9003
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+    ports:
+      - "9000:9000"
+    depends_on:
+      event-api:
+        condition: service_healthy
+      customer-api:
+        condition: service_healthy
+      ticket-api:
+        condition: service_healthy
+
+volumes:
+  pgdata:

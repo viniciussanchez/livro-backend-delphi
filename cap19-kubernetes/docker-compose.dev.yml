@@ -1,0 +1,19 @@
+# Só para desenvolvimento e testes: abre as portas internas na sua máquina.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+#
+# Assim os testes de integração do capítulo 15 e o pgAdmin alcançam
+# os serviços e o banco diretamente. Em produção, use só o docker-compose.yml.
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:5432:5432"
+  event-api:
+    ports:
+      - "127.0.0.1:9001:9001"
+  customer-api:
+    ports:
+      - "127.0.0.1:9002:9002"
+  ticket-api:
+    ports:
+      - "127.0.0.1:9003:9003"

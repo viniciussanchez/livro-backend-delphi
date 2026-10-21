@@ -1,0 +1,24 @@
+# Dependências do Boss
+modules/
+
+# Saída de compilação
+Win32/
+Win64/
+Linux64/
+*.dcu
+*.exe
+*.map
+*.drc
+*.rsm
+
+# Arquivos locais da IDE
+__history/
+__recovery/
+*.local
+*.identcache
+*.dsk
+*.stat
+*.~*
+
+# Configuração local com segredos (capítulo 14)
+.env
