@@ -14,7 +14,7 @@ de qualquer ponto do livro, ou comparar o seu código com o do capítulo.
 
 - Delphi 13 Florence
 - [Boss](https://github.com/HashLoad/boss) (gerenciador de dependências)
-- Docker Desktop (a partir do capítulo 5, para o PostgreSQL)
+- Docker Desktop (a partir do capítulo 2, para o PostgreSQL; do 19 ao 21, com o Kubernetes ativado)
 - Delphi Enterprise ou Architect para compilar para Linux (capítulo 17 em diante)
 
 ## Como usar uma pasta de capítulo
@@ -70,6 +70,25 @@ No capítulo 22, o banco do sistema antigo é criado pelos scripts de `legacy/sq
 nesta ordem: `01-bilheteria.sql`, `02-dados-de-exemplo.sql` e `03-sincronizacao.sql`
 (este último é a única mudança no sistema antigo). O serviço `legacy-sync` sobe na
 porta 9004.
+
+## Roteiros de teste
+
+Do capítulo 3 em diante, cada pasta traz `scripts\test-capNN.bat`: o mesmo roteiro usado
+para conferir as seções "Testando" do livro. Ele sobe o que for preciso, roda os comandos
+e grava as respostas em `scripts\test-capNN.log`, para você comparar com o texto.
+Rode no Prompt de Comando (cmd), a partir da pasta do capítulo, depois de compilar os projetos.
+
+## Trocando de capítulo
+
+Cada pasta tem o seu `docker-compose.yml`. Antes de subir o banco de outro capítulo,
+pare o do capítulo anterior, na pasta dele:
+
+```bash
+docker compose down
+```
+
+Sem isso, o Docker recusa o novo contêiner porque o nome `eventos-postgres` (ou a porta 5432)
+já está em uso.
 
 ## Capítulos
 

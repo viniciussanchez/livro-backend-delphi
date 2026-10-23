@@ -1,0 +1,7 @@
+# Finais de linha: LF no repositório; .bat com CRLF (o cmd exige),
+# scripts de shell sempre com LF (rodam dentro de contêineres Linux).
+* text=auto
+*.bat text eol=crlf
+*.sh text eol=lf
+Dockerfile* text eol=lf
+*.res binary

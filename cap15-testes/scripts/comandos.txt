@@ -1,0 +1,11 @@
+rem Comandos do capitulo 15, na ordem do livro. Rode no Prompt de Comando (cmd),
+rem a partir da pasta do capitulo. Linhas com "rem" sao so comentarios.
+
+rem ---- 15.5 Testes de integração
+EventosTests.exe --exclude:integracao   # só os rápidos
+EventosTests.exe --include:integracao   # só os de integração
+
+rem ---- Testando
+cd tests\Win64\Debug
+EventosTests.exe --exclude:integracao
+EventosTests.exe --include:integracao

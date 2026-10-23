@@ -23,6 +23,10 @@ const
   USER_TOKEN_SECONDS = 3600;    // 1 hora
   SERVICE_TOKEN_SECONDS = 300;  // 5 minutos
 
+  // Quem emite os tokens. Um token assinado com a mesma chave, mas para
+  // outro sistema, não serve aqui.
+  TOKEN_ISSUER = 'eventos-platform';
+
 type
   // Quem fez a requisição, segundo o token.
   TPrincipal = class
@@ -51,6 +55,11 @@ function RequireRole(const ARoles: TArray<string>): THorseCallback;
 // Atalho para as rotas protegidas: autentica e confere o papel.
 function Protect(const ARoles: TArray<string>): TArray<THorseCallback>;
 function CurrentUser(const AReq: THorseRequest): TPrincipal;
+// Para rotas públicas que mostram mais a quem se identifica: o token é
+// opcional, mas, se vier, precisa ser válido.
+function OptionalAuth: THorseCallback;
+// Quem fez a requisição, se ela trouxe um token; False numa requisição anônima.
+function TryCurrentUser(const AReq: THorseRequest; out AUser: TPrincipal): Boolean;
 
 function IssueToken(const ASubject, ARole: string; const ACustomerId: Integer;
   const AExpiresIn: Integer): string;
@@ -121,7 +130,7 @@ begin
   LNow := TJwt.NowUnix;
   LClaims := TJSONObject.Create;
   try
-    LClaims.AddPair('iss', 'eventos-platform');
+    LClaims.AddPair('iss', TOKEN_ISSUER);
     LClaims.AddPair('sub', ASubject);
     LClaims.AddPair('role', ARole);
     if ACustomerId > 0 then
@@ -152,7 +161,7 @@ end;
 
 { Middlewares }
 
-procedure Authenticate(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+procedure LoadPrincipal(const Req: THorseRequest);
 var
   LHeader, LToken: string;
   LClaims: TJSONObject;
@@ -171,6 +180,11 @@ begin
       // quem integra e não ajuda quem ataca, que não tem a chave.
       raise EUnauthorizedException.Create(E.Message);
   end;
+  if LClaims.GetValue<string>('iss', '') <> TOKEN_ISSUER then
+  begin
+    LClaims.Free;
+    raise EUnauthorizedException.Create('Emissor do token não reconhecido.');
+  end;
   try
     LPrincipal := TPrincipal.Create;
     LPrincipal.FSubject := LClaims.GetValue<string>('sub', '');
@@ -181,7 +195,33 @@ begin
   end;
   // A requisição passa a ser dona do objeto e o libera no fim.
   Req.Session(LPrincipal, True);
+end;
+
+procedure Authenticate(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  LoadPrincipal(Req);
   Next;
+end;
+
+procedure AuthenticateIfPresent(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+begin
+  if not Req.Headers['Authorization'].IsEmpty then
+    LoadPrincipal(Req);
+  Next;
+end;
+
+function OptionalAuth: THorseCallback;
+begin
+  Result := AuthenticateIfPresent;
+end;
+
+function TryCurrentUser(const AReq: THorseRequest; out AUser: TPrincipal): Boolean;
+begin
+  Result := AReq.Session<TObject> is TPrincipal;
+  if Result then
+    AUser := AReq.Session<TPrincipal>
+  else
+    AUser := nil;
 end;
 
 function RequireRole(const ARoles: TArray<string>): THorseCallback;

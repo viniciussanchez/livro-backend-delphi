@@ -1,0 +1,9 @@
+rem Comandos do capitulo 4, na ordem do livro. Rode no Prompt de Comando (cmd),
+rem a partir da pasta do capitulo. Linhas com "rem" sao so comentarios.
+
+rem ---- Testando a API
+curl -i -X POST http://localhost:9001/events -H "Content-Type: application/json" -d "{\"name\":\"Delphi Conference\",\"city\":\"Belo Horizonte\",\"eventDate\":\"2026-11-20\",\"capacity\":300}"
+curl -i "http://localhost:9001/events?city=belo%20horizonte"
+curl -i http://localhost:9001/events/abc
+curl -i http://localhost:9001/events/99
+curl -i -X DELETE http://localhost:9001/events/1

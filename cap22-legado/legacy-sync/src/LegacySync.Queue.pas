@@ -139,9 +139,15 @@ begin
     [ANote, AItem.Id]);
   // Os itens anteriores do mesmo cliente, pendentes ou rejeitados, ficam
   // resolvidos: o que acabamos de enviar já é o estado mais recente.
+  // O "skip locked" pula os itens que outra thread pegou e ainda segura:
+  // esperar por eles aqui, com a trava do cliente na mão, seria um deadlock
+  // (a outra thread está esperando justamente essa trava). Ela mesma resolve
+  // o item dela quando a trava for liberada.
   FConnection.ExecSQL(
     'update SYNC_FILA set STATUS = ''O'', PROCESSADO_EM = localtimestamp' +
-    ' where TABELA = :tabela and CHAVE = :chave and ID < :id and STATUS in (''P'', ''R'')',
+    ' where ID in (select ID from SYNC_FILA' +
+    '   where TABELA = :tabela and CHAVE = :chave and ID < :id and STATUS in (''P'', ''R'')' +
+    '   for update skip locked)',
     [AItem.Table, AItem.Key, AItem.Id]);
 end;
 
@@ -158,7 +164,9 @@ begin
   FConnection.ExecSQL(
     'update SYNC_FILA set STATUS = ''O'', PROCESSADO_EM = localtimestamp,' +
     '       ERRO = ''substituído pelo item '' || :item_novo' +
-    ' where TABELA = :tabela and CHAVE = :chave and ID < :limite and STATUS = ''P''',
+    ' where ID in (select ID from SYNC_FILA' +
+    '   where TABELA = :tabela and CHAVE = :chave and ID < :limite and STATUS = ''P''' +
+    '   for update skip locked)',
     [AItem.Id, AItem.Table, AItem.Key, AItem.Id]);
 end;
 

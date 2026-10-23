@@ -1,0 +1,13 @@
+rem Comandos do capitulo 18, na ordem do livro. Rode no Prompt de Comando (cmd),
+rem a partir da pasta do capitulo. Linhas com "rem" sao so comentarios.
+
+rem ---- 18.4 A plataforma inteira num arquivo: Docker Compose
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+rem ---- Testando
+docker compose build
+docker compose up -d --wait
+docker compose exec event-api /app/EventApi --healthcheck
+# código de saída: 0
+docker compose exec event-api sh -c "id; ls -l /app; grep -E '^(Name|Pid|Uid|VmRSS)' /proc/1/status"
+docker compose run --rm --no-deps -e JWT_SECRET=curta ticket-api

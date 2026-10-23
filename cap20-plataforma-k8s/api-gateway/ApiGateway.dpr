@@ -35,6 +35,7 @@ begin
     TConfig.Load([
       TSetting.New('APP_ENV', 'development'),
       TSetting.New('PORT', '9000'),
+      TSetting.New('MAX_CONNECTIONS', '200'),
       TSetting.New('EVENT_API_URL', 'http://127.0.0.1:9001'),
       TSetting.New('CUSTOMER_API_URL', 'http://127.0.0.1:9002'),
       TSetting.New('TICKET_API_URL', 'http://127.0.0.1:9003'),
@@ -78,6 +79,10 @@ begin
   THorse.Get('/health/live', GetLiveness);
   // Qualquer outro caminho, com qualquer método, vai para a tabela de rotas.
   THorse.All('/*', ForwardRequest);
+
+  // Capítulo 20: sem isto, o WebBroker atende no máximo 32 conexões ao mesmo
+  // tempo e recusa as outras com um 500.
+  THorse.MaxConnections := TConfig.IntValue('MAX_CONNECTIONS');
 
   THorse.Listen(TConfig.IntValue('PORT'),
     procedure

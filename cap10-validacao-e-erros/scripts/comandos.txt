@@ -1,0 +1,12 @@
+rem Comandos do capitulo 10, na ordem do livro. Rode no Prompt de Comando (cmd),
+rem a partir da pasta do capitulo. Linhas com "rem" sao so comentarios.
+
+rem ---- Testando
+curl -i -X POST http://localhost:9002/customers -H "Content-Type: application/json" -d "{\"cpf\":\"111.111.111-11\",\"name\":\"Ana\",\"email\":\"ana-sem-arroba\",\"phone\":\"123\",\"birthDate\":\"2099-01-01\"}"
+curl -i -X POST http://localhost:9002/customers -H "Content-Type: application/json" -d "{\"name\": "
+curl -i "http://localhost:9001/events?category=x&from=2026-13-01&status=foo"
+curl -X PUT http://localhost:9003/batches/10 -H "Content-Type: application/json" -d "{\"eventId\":1,\"price\":100,\"quantity\":2,\"salesStart\":\"2020-01-01T00:00:00\",\"salesEnd\":\"2099-12-01T00:00:00\"}"
+curl -X POST http://localhost:9003/reservations -H "Content-Type: application/json" -d "{\"customerId\":1,\"batchId\":10,\"quantity\":2}"
+curl -i -X POST http://localhost:9003/reservations -H "Content-Type: application/json" -d "{\"customerId\":3,\"batchId\":10,\"quantity\":1}"
+docker stop eventos-postgres
+curl -i http://localhost:9002/customers/1

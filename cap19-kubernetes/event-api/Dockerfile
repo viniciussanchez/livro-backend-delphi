@@ -6,7 +6,7 @@ FROM ubuntu:22.04
 # libpq5: cliente do PostgreSQL, carregado pelo FireDAC.
 # libcurl4: base do THTTPClient no Linux (o --healthcheck e as chamadas entre serviços).
 RUN apt-get update \
- && apt-get install -y --no-install-recommends libpq5 libcurl4 ca-certificates \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends libpq5 libcurl4 ca-certificates tzdata \
  && rm -rf /var/lib/apt/lists/*
 
 # Um usuário sem privilégios: se alguém explorar uma falha no serviço,
@@ -17,7 +17,10 @@ WORKDIR /app
 COPY --chmod=755 Linux64/Release/EventApi /app/EventApi
 
 USER eventos
-ENV APP_ENV=production \
+# A plataforma trabalha no horário local do evento (capítulo 6).
+# Sem isto, o contêiner roda em UTC e Now fica 3 horas adiantado.
+ENV TZ=America/Sao_Paulo \
+    APP_ENV=production \
     PORT=9001
 EXPOSE 9001
 

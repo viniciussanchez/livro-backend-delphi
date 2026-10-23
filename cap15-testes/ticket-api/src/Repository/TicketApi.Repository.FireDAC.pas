@@ -20,7 +20,7 @@ type
 
   TReservationRepositoryFireDAC = class(TFireDACRepository, IReservationRepository)
   private
-    procedure LoadTickets(const AReservation: TReservation);
+    procedure LoadTickets(const AReservation: TReservation; const ALock: Boolean = False);
   public
     function FindById(const AId: Integer; const ALock: Boolean = False): TReservation;
     procedure Insert(const AReservation: TReservation);
@@ -144,7 +144,7 @@ end;
 
 { TReservationRepositoryFireDAC }
 
-procedure TReservationRepositoryFireDAC.LoadTickets(const AReservation: TReservation);
+procedure TReservationRepositoryFireDAC.LoadTickets(const AReservation: TReservation; const ALock: Boolean);
 var
   LQuery: TFDQuery;
   LTicket: TTicket;
@@ -152,6 +152,10 @@ begin
   LQuery := NewQuery(
     'select id, code, status, checked_in_at from ticket where reservation_id = :id order by id');
   try
+    // No cancelamento, os ingressos também ficam travados: um check-in
+    // simultâneo espera o cancelamento terminar e então é recusado.
+    if ALock then
+      LQuery.SQL.Add('for update');
     LQuery.ParamByName('id').AsInteger := AReservation.Id;
     LQuery.Open;
     while not LQuery.Eof do
@@ -199,7 +203,7 @@ begin
       Result.Status := TReservationStatus.Parse(LQuery.FieldByName('status').AsString);
       Result.CreatedAt := LQuery.FieldByName('created_at').AsDateTime;
       Result.CancelledAt := NullableDateTime(LQuery.FieldByName('cancelled_at'));
-      LoadTickets(Result);
+      LoadTickets(Result, ALock);
     except
       FreeAndNil(Result);
       raise;

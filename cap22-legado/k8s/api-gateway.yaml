@@ -47,6 +47,14 @@ spec:
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
+          # Ao apagar um Pod, o Kubernetes envia o SIGTERM e, ao mesmo tempo, tira o
+          # Pod do Service. Por um instante, ainda chegam conexões novas. Os 3
+          # segundos de espera antes do SIGTERM dão tempo para todos pararem de
+          # mandar tráfego para cá (capítulo 19).
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "3"]
           startupProbe:
             httpGet:
               path: /health/live
@@ -79,6 +87,10 @@ spec:
   # A porta de entrada: um IP acessível de fora do cluster.
   # No Docker Desktop, ele aparece em localhost:9000.
   type: LoadBalancer
+  # Entrega ao gateway o endereço real do cliente (o limite de login do
+  # capítulo 16 conta por endereço). Sem isto, o Kubernetes troca a origem
+  # pelo endereço do nó, e todos os clientes dividem a mesma cota.
+  externalTrafficPolicy: Local
   selector:
     app.kubernetes.io/name: api-gateway
   ports:

@@ -23,6 +23,7 @@ implementation
 
 uses
   System.Diagnostics,
+  System.StrUtils,
   Platform.Log,
   Platform.Metrics,
   Platform.SecureRandom;
@@ -54,6 +55,16 @@ begin
     SameText(APath, '/metrics');
 end;
 
+// O método também vira rótulo. Os conhecidos passam como vieram; qualquer
+// outro (um FOO1 inventado, por exemplo) conta como OTHER, pelo mesmo
+// motivo do "(desconhecida)" nas rotas.
+function MethodLabel(const AMethod: string): string;
+begin
+  Result := AMethod.ToUpper;
+  if not MatchStr(Result, ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']) then
+    Result := 'OTHER';
+end;
+
 procedure Observability(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
   LId, LRoute, LMethod, LStatus: string;
@@ -70,7 +81,7 @@ begin
   try
     Next;
   finally
-    LMethod := Req.RawWebRequest.Method.ToUpper;
+    LMethod := MethodLabel(Req.RawWebRequest.Method);
     LRoute := RouteTemplate(Req.PathInfo);
     // Cada valor diferente de rótulo vira uma série nova no Prometheus.
     // Um robô pedindo milhares de caminhos inventados criaria milhares de

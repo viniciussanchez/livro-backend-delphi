@@ -1,0 +1,14 @@
+rem Comandos do capitulo 7, na ordem do livro. Rode no Prompt de Comando (cmd),
+rem a partir da pasta do capitulo. Linhas com "rem" sao so comentarios.
+
+rem ---- Testando a API
+curl -i -X POST http://localhost:9002/customers -H "Content-Type: application/json" -d "{\"name\":\"João da Silva\",\"cpf\":\"529.982.247-25\",\"email\":\"Joao.Silva@Exemplo.com\",\"phone\":\"31 99999-8888\",\"birthDate\":\"1990-05-20\"}"
+curl -i -X POST http://localhost:9002/customers -H "Content-Type: application/json" -d "{\"name\":\"Teste\",\"cpf\":\"123.456.789-00\",\"email\":\"t@exemplo.com\"}"
+curl -i -X POST http://localhost:9002/customers -H "Content-Type: application/json" -d "{\"name\":\"Teste\",\"cpf\":\"111.111.111-11\",\"email\":\"t@exemplo.com\"}"
+curl -i -X POST http://localhost:9002/customers -H "Content-Type: application/json" -d "{\"name\":\"Outro\",\"cpf\":\"52998224725\",\"email\":\"outro@exemplo.com\"}"
+curl "http://localhost:9002/customers?email=JOAO.SILVA@EXEMPLO.COM"
+curl -i http://localhost:9002/customers
+curl -i -X PUT http://localhost:9002/customers/1 -H "Content-Type: application/json" -d "{\"name\":\"João Pedro da Silva\",\"cpf\":\"111.444.777-35\",\"email\":\"joao.pedro@exemplo.com\",\"phone\":\"3133334444\"}"
+curl -i -X DELETE http://localhost:9002/customers/1
+curl -i http://localhost:9002/customers/1
+docker exec eventos-postgres psql -U eventos -d customer_db -c "select id, name, cpf, email, anonymized_at is not null as anon from customer order by id"

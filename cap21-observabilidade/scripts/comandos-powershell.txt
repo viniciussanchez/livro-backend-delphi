@@ -1,0 +1,10 @@
+# Comandos do capitulo 21 que rodam no PowerShell, na ordem do livro.
+
+# ---- Testando
+'api-gateway', 'event-api', 'customer-api', 'ticket-api' |
+  ForEach-Object { kubectl -n eventos logs -l "app.kubernetes.io/name=$_" --tail=-1 --max-log-requests=10 } |
+  Where-Object { $_.Trim() } |
+  ForEach-Object { $_ | ConvertFrom-Json } |
+  Where-Object requestId -eq 'livro-cap21-compra' |
+  Sort-Object time |
+  Format-Table time, service, method, path, status, durationMs

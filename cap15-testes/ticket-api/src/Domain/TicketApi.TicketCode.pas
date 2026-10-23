@@ -26,7 +26,7 @@ var
   LBytes: TBytes;
   I: Integer;
 begin
-  // Um GUID novo traz bytes aleatórios gerados pelo sistema operacional.
+  // No Windows, um GUID novo traz bytes aleatórios do sistema operacional.
   // Ao contrário do Random, não depende de semente e pode ser chamado
   // de várias threads ao mesmo tempo. Pulamos os bytes 6 a 9, que contêm
   // os bits fixos de versão e variante do GUID.

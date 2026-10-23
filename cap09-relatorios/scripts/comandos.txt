@@ -1,0 +1,18 @@
+rem Comandos do capitulo 9, na ordem do livro. Rode no Prompt de Comando (cmd),
+rem a partir da pasta do capitulo. Linhas com "rem" sao so comentarios.
+
+rem ---- 9.4 Otimizando consultas
+curl -o nul -w "%{time_total}s" "http://localhost:9003/reports/revenue?from=2025-03-01&to=2025-03-31&groupBy=day"
+
+rem ---- Testando
+curl -X PUT http://localhost:9003/batches/10 -H "Content-Type: application/json" -d "{\"eventId\":1,\"price\":150,\"quantity\":100,\"salesStart\":\"2020-01-01T00:00:00\",\"salesEnd\":\"2099-12-01T00:00:00\"}"
+curl -X PUT http://localhost:9003/batches/11 -H "Content-Type: application/json" -d "{\"eventId\":1,\"price\":220,\"quantity\":50,\"salesStart\":\"2020-01-01T00:00:00\",\"salesEnd\":\"2099-12-01T00:00:00\"}"
+rem uma reserva para os relatorios (o livro remete ao capitulo 8)
+curl -s -o nul -w "%{http_code}" -X POST http://localhost:9003/reservations -H "Content-Type: application/json" -d "{\"customerId\":1,\"batchId\":10,\"quantity\":2}"
+curl http://localhost:9003/reports/events/1/sales
+curl http://localhost:9003/reports/events/1/attendance
+curl "http://localhost:9003/reports/revenue?from=2020-01-01&to=2099-12-31&groupBy=month"
+curl -i http://localhost:9003/reports/events/99/sales
+curl -i "http://localhost:9003/reports/revenue?from=2025-01-01&to=2026-10-31&groupBy=day"
+docker exec -i eventos-postgres psql -U eventos -d ticket_db < scripts/sql/cap09-volume.sql
+docker exec -i eventos-postgres psql -U eventos -d ticket_db < scripts/sql/cap09-explain.sql

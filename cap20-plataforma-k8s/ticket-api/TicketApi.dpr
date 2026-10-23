@@ -96,6 +96,10 @@ begin
   // Capítulo 16: o gateway e, mais adiante, o Docker perguntam por aqui.
   RegisterHealthCheck('ticket-api', TICKET_DB);
 
+  // Capítulo 20: sem isto, o WebBroker atende no máximo 32 conexões ao mesmo
+  // tempo e recusa as outras com um 500.
+  THorse.MaxConnections := TConfig.IntValue('MAX_CONNECTIONS');
+
   THorse.Listen(TConfig.IntValue('PORT'),
     procedure
     begin

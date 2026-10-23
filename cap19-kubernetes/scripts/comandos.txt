@@ -1,0 +1,31 @@
+rem Comandos do capitulo 19, na ordem do livro. Rode no Prompt de Comando (cmd),
+rem a partir da pasta do capitulo. Linhas com "rem" sao so comentarios.
+
+rem ---- 19.1 O vocabulário mínimo
+kubectl get nodes
+
+rem ---- 19.2 A grande ideia: estado desejado
+kubectl apply -f k8s/
+
+rem ---- 19.5 Service: um endereço que não muda
+kubectl -n eventos port-forward svc/event-api 19001:9001
+
+rem ---- 19.6 ConfigMap e Secret: a configuração do capítulo 14
+kubectl create secret generic eventos-secrets -n eventos --from-env-file=.env
+
+rem ---- 19.9 Atualização em etapas e volta atrás
+kubectl -n eventos rollout undo deploy/event-api
+
+rem ---- Testando
+docker build -t eventos/event-api:cap19 event-api
+kubectl apply -f k8s/00-namespace.yaml
+kubectl create secret generic eventos-secrets -n eventos --from-env-file=.env
+kubectl apply -f k8s/
+kubectl -n eventos rollout status deploy/event-api
+kubectl -n eventos delete pod event-api-5cf87fd889-fjtv7
+kubectl -n eventos scale deploy/event-api --replicas=3
+kubectl -n eventos scale deploy/postgres --replicas=0
+kubectl -n eventos scale deploy/postgres --replicas=1
+kubectl -n eventos set env deploy/event-api DB_POOL_SIZE=20
+kubectl -n eventos rollout status deploy/event-api
+kubectl delete namespace eventos

@@ -105,6 +105,10 @@ begin
   // Capítulo 21: as métricas para o Prometheus.
   RegisterMetricsEndpoint;
 
+  // Capítulo 20: sem isto, o WebBroker atende no máximo 32 conexões ao mesmo
+  // tempo e recusa as outras com um 500.
+  THorse.MaxConnections := TConfig.IntValue('MAX_CONNECTIONS');
+
   THorse.Listen(TConfig.IntValue('PORT'),
     procedure
     begin

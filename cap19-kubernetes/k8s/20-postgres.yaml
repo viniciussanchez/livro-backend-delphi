@@ -49,9 +49,13 @@ spec:
       containers:
         - name: postgres
           image: postgres:17
+          # O banco no mesmo fuso dos serviços.
+          args: ["-c", "timezone=America/Sao_Paulo"]
           ports:
             - containerPort: 5432
           env:
+            - name: TZ
+              value: America/Sao_Paulo
             - name: POSTGRES_USER
               value: eventos
             - name: POSTGRES_DB

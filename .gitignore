@@ -22,3 +22,7 @@ __recovery/
 
 # Configuração local com segredos (capítulo 14)
 .env
+
+# Saídas dos roteiros de teste (scripts\test-capNN.bat)
+*.log
+**/scripts/out/

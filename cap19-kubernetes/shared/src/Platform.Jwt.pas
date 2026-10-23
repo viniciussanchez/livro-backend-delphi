@@ -119,6 +119,7 @@ var
   LAlg: string;
   LValue: TJSONValue;
   LExp, LNbf: Int64;
+  LSignature: TBytes;
 begin
   LParts := AToken.Split(['.']);
   if Length(LParts) <> 3 then
@@ -139,8 +140,14 @@ begin
     LHeader.Free;
   end;
 
-  // 2. Assinatura.
-  if not SameBytes(Base64UrlDecode(LParts[2]), Signature(LParts[0] + '.' + LParts[1], ASecret)) then
+  // 2. Assinatura. Um texto que nem é Base64 também é uma assinatura
+  //    inválida: sem o try, o erro da decodificação viraria um 500.
+  try
+    LSignature := Base64UrlDecode(LParts[2]);
+  except
+    raise EJwtException.Create('Assinatura do token inválida.');
+  end;
+  if not SameBytes(LSignature, Signature(LParts[0] + '.' + LParts[1], ASecret)) then
     raise EJwtException.Create('Assinatura do token inválida.');
 
   // 3. Conteúdo e validade.

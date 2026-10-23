@@ -77,6 +77,8 @@ begin
     TSetting.New('DB_POOL_SIZE', '50'),
     // Capítulo 20: quanto esperar por uma conexão livre quando o pool está cheio.
     TSetting.New('DB_POOL_WAIT_MS', '3000'),
+    // Capítulo 20: conexões HTTP atendidas ao mesmo tempo (o WebBroker vem com 32).
+    TSetting.New('MAX_CONNECTIONS', '200'),
     // Capítulo 21: json, text ou auto (json em produção).
     TSetting.New('LOG_FORMAT', 'auto'),
     // 32 caracteres é o mínimo razoável para uma chave HMAC-SHA256.

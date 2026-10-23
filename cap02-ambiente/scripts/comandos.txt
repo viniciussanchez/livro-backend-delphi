@@ -1,0 +1,20 @@
+rem Comandos do capitulo 2, na ordem do livro. Rode no Prompt de Comando (cmd),
+rem a partir da pasta do capitulo. Linhas com "rem" sao so comentarios.
+
+rem ---- 2.2 Gerenciando dependências com o Boss
+boss --version
+boss config git mode native
+boss install horse
+
+rem ---- 2.3 Subindo o PostgreSQL com Docker
+docker version
+docker compose up -d --wait
+docker compose ps
+docker exec eventos-postgres psql -U eventos -d eventos -c "\l"
+
+rem ---- 2.4 Ferramentas para testar APIs
+curl -i http://localhost:9000/ping
+
+rem ---- 2.5 Versionando o projeto com Git
+git config --global user.name "Seu Nome"
+git config --global user.email "seu@email.com"

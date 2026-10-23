@@ -1,0 +1,11 @@
+rem Comandos do capitulo 5, na ordem do livro. Rode no Prompt de Comando (cmd),
+rem a partir da pasta do capitulo. Linhas com "rem" sao so comentarios.
+
+rem ---- Testando a API
+docker compose up -d --wait
+set PATH=C:\caminho\para\vendor\pgsql\bin;%PATH%
+curl -i -X POST http://localhost:9001/events -H "Content-Type: application/json" -d "{\"name\":\"Festival de Verão\",\"city\":\"São Paulo\",\"eventDate\":\"2026-12-05\",\"capacity\":5000}"
+for /l %i in (1,1,30) do start "" /b curl -s -o nul -X POST http://localhost:9001/events -H "Content-Type: application/json" -d "{\"name\":\"Evento %i\",\"city\":\"Carga\",\"eventDate\":\"2026-12-31\",\"capacity\":10}"
+docker exec eventos-postgres psql -U eventos -d event_db -tAc "select count(*) from event where city = 'Carga'"
+docker exec eventos-postgres psql -U eventos -d event_db -tAc "select count(*) from pg_stat_activity where application_name = 'event-api'"
+docker exec eventos-postgres psql -U eventos -d event_db -c "select version, description from schema_migration"

@@ -37,6 +37,10 @@ type
     procedure AlgNoneIsRejected;
     [Test]
     procedure GarbageIsRejected;
+    [Test]
+    procedure SignatureThatIsNotBase64IsRejected;
+    [Test]
+    procedure EmptyPartsAreRejected;
   end;
 
 implementation
@@ -193,6 +197,23 @@ end;
 procedure TJwtTests.GarbageIsRejected;
 begin
   ExpectRejected('isto-nao-e-um-token', SECRET, '');
+end;
+
+procedure TJwtTests.SignatureThatIsNotBase64IsRejected;
+var
+  LParts: TArray<string>;
+begin
+  // Cabeçalho e conteúdo verdadeiros, assinatura com caracteres fora do Base64:
+  // tem de ser 401 (EJwtException), e não um erro qualquer que vire 500.
+  LParts := SignClaims(Claims(3600), SECRET).Split(['.']);
+  ExpectRejected(LParts[0] + '.' + LParts[1] + '.%%%!', SECRET, 'Assinatura do token inválida.');
+end;
+
+procedure TJwtTests.EmptyPartsAreRejected;
+begin
+  ExpectRejected('..', SECRET, '');
+  ExpectRejected('a..', SECRET, '');
+  ExpectRejected('a.b.c!', SECRET, '');
 end;
 
 initialization

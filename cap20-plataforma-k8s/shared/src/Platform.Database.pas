@@ -52,6 +52,7 @@ uses
 type
   TDbSession = class(TInterfacedObject, IDbSession)
   private
+    FConnectionDefName: string;
     FConnection: TFDConnection;
   public
     constructor Create(const AConnectionDefName: string);
@@ -73,7 +74,10 @@ const
 constructor TDbSession.Create(const AConnectionDefName: string);
 begin
   inherited Create;
-  FConnection := TDatabase.NewConnection(AConnectionDefName);
+  // A conexão só sai do pool quando alguém precisa dela (veja Connection).
+  // Assim, um serviço que conversa com outros pela rede antes de tocar no
+  // banco não segura uma conexão enquanto espera a resposta (capítulo 12).
+  FConnectionDefName := AConnectionDefName;
 end;
 
 destructor TDbSession.Destroy;
@@ -85,17 +89,21 @@ end;
 
 function TDbSession.Connection: TFDConnection;
 begin
+  // Uma sessão é usada por uma única requisição, numa única thread:
+  // não há corrida aqui.
+  if not Assigned(FConnection) then
+    FConnection := TDatabase.NewConnection(FConnectionDefName);
   Result := FConnection;
 end;
 
 procedure TDbSession.InTransaction(const AProc: TProc);
 begin
-  FConnection.StartTransaction;
+  Connection.StartTransaction;
   try
     AProc();
-    FConnection.Commit;
+    Connection.Commit;
   except
-    FConnection.Rollback;
+    Connection.Rollback;
     raise;
   end;
 end;

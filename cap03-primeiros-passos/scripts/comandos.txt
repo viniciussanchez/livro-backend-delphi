@@ -1,0 +1,25 @@
+rem Comandos do capitulo 3, na ordem do livro. Rode no Prompt de Comando (cmd),
+rem a partir da pasta do capitulo. Linhas com "rem" sao so comentarios.
+
+rem ---- 3.1 Hello World
+boss init --quiet
+boss install horse
+curl http://localhost:9000/ping
+curl -i http://localhost:9000/ping
+
+rem ---- 3.2 Rotas, parâmetros e query strings
+curl http://localhost:9000/hello/Vinicius
+
+rem ---- 3.4 Trabalhando com JSON
+boss install jhonson
+
+rem ---- Testando a API
+curl -i -X POST http://localhost:9000/events -H "Content-Type: application/json" -d "{\"name\":\"Delphi Conference\",\"city\":\"Belo Horizonte\",\"eventDate\":\"2026-11-20\",\"capacity\":300}"
+curl -i -X POST http://localhost:9000/events -H "Content-Type: application/json" -d "{\"name\":\"Festival de Rock\",\"city\":\"Sao Paulo\",\"eventDate\":\"2026-12-05\",\"capacity\":5000}"
+curl "http://localhost:9000/events?city=belo%20horizonte"
+curl -i http://localhost:9000/events/abc
+curl -i http://localhost:9000/events/99
+curl -i -X POST http://localhost:9000/events -H "Content-Type: application/json" -d "{\"name\":\"X\",\"city\":\"Y\",\"eventDate\":\"2026-11-20\",\"capacity\":0}"
+curl -i -X DELETE http://localhost:9000/events/1
+curl -i http://localhost:9000/events/1
+curl -i -X POST http://localhost:9000/events -H "Content-Type: application/json" -d "{\"name\":"

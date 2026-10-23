@@ -1,0 +1,16 @@
+rem Comandos do capitulo 8, na ordem do livro. Rode no Prompt de Comando (cmd),
+rem a partir da pasta do capitulo. Linhas com "rem" sao so comentarios.
+
+rem ---- 8.3 Concorrência: como não vender o mesmo ingresso duas vezes
+curl -X PUT http://localhost:9003/batches/10 -H "Content-Type: application/json" -d "{\"eventId\":1,\"price\":150,\"quantity\":10,\"salesStart\":\"2020-01-01T00:00:00\",\"salesEnd\":\"2099-12-01T00:00:00\"}"
+for /l %i in (1,1,40) do start "" /b curl -s -o nul -w "%{http_code} " -X POST http://localhost:9003/reservations -H "Content-Type: application/json" -d "{\"customerId\":%i,\"batchId\":10,\"quantity\":1}"
+docker exec eventos-postgres psql -U eventos -d ticket_db -tAc "select sold from batch_inventory where id = 10"
+docker exec eventos-postgres psql -U eventos -d ticket_db -tAc "select count(*) from ticket t join reservation r on r.id = t.reservation_id where r.batch_id = 10"
+
+rem ---- Testando a API
+curl -X PUT http://localhost:9003/batches/30 -H "Content-Type: application/json" -d "{\"eventId\":2,\"price\":49.9,\"quantity\":3,\"salesStart\":\"2020-01-01T00:00:00\",\"salesEnd\":\"2099-12-01T00:00:00\"}"
+curl -i -X POST http://localhost:9003/reservations -H "Content-Type: application/json" -d "{\"customerId\":7,\"batchId\":30,\"quantity\":2}"
+curl -i -X POST http://localhost:9003/reservations -H "Content-Type: application/json" -d "{\"customerId\":8,\"batchId\":30,\"quantity\":2}"
+curl -i -X POST http://localhost:9003/tickets/DFS7EH4JQA/check-in
+curl -i -X POST http://localhost:9003/tickets/DFS7EH4JQA/check-in
+curl -i -X POST http://localhost:9003/reservations/1/cancel

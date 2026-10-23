@@ -1,0 +1,9 @@
+rem Comandos do capitulo 21, na ordem do livro. Rode no Prompt de Comando (cmd),
+rem a partir da pasta do capitulo. Linhas com "rem" sao so comentarios.
+
+rem ---- 21.5 O Prometheus no cluster
+kubectl -n eventos port-forward svc/prometheus 9090:9090
+
+rem ---- Testando
+kubectl apply -k k8s
+kubectl delete namespace eventos

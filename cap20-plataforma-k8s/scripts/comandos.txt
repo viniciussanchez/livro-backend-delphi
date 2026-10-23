@@ -1,0 +1,15 @@
+rem Comandos do capitulo 20, na ordem do livro. Rode no Prompt de Comando (cmd),
+rem a partir da pasta do capitulo. Linhas com "rem" sao so comentarios.
+
+rem ---- 20.1 Organizando os manifestos com o Kustomize
+kubectl apply -k k8s
+
+rem ---- 20.2 Imagens: versões e registros
+docker build -t ghcr.io/sua-conta/ticket-api:1.0.1 ticket-api
+docker push ghcr.io/sua-conta/ticket-api:1.0.1
+
+rem ---- Testando
+kubectl apply -k k8s
+curl http://localhost:9000/health
+kubectl -n eventos delete pod postgres-0
+kubectl delete namespace eventos

@@ -3,5 +3,7 @@
 # que os serviços carregam em tempo de execução.
 FROM ubuntu:22.04
 RUN apt-get update \
- && apt-get install -y --no-install-recommends libpq5 libcurl4 ca-certificates procps \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends libpq5 libcurl4 ca-certificates tzdata procps \
  && rm -rf /var/lib/apt/lists/*
+# Horário local do evento, como no Windows (o contêiner usaria UTC).
+ENV TZ=America/Sao_Paulo

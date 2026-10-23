@@ -1,0 +1,12 @@
+rem Comandos do capitulo 17, na ordem do livro. Rode no Prompt de Comando (cmd),
+rem a partir da pasta do capitulo. Linhas com "rem" sao so comentarios.
+
+rem ---- 17.2 Adicionando a plataforma Linux aos projetos
+msbuild EventApi.dproj /t:Build /p:Config=Release /p:Platform=Linux64
+
+rem ---- 17.3 Um servidor Linux de laboratório
+docker run --rm -v "%cd%\event-api\Linux64\Release:/opt/eventos/event-api:ro" ubuntu:22.04 ldd /opt/eventos/event-api/EventApi
+docker run --rm --network cap17-linux_default -e DB_HOST=postgres -v "%cd%\event-api\Linux64\Release:/opt/eventos/event-api:ro" ubuntu:22.04 /opt/eventos/event-api/EventApi
+docker build -t eventos-servidor-linux -f linux\Dockerfile.servidor linux
+docker run -d --init --name eventos-linux --network cap17-linux_default -p 9000-9003:9000-9003 -e DB_HOST=postgres -v "%cd%\event-api\Linux64\Release:/opt/eventos/event-api:ro" -v "%cd%\customer-api\Linux64\Release:/opt/eventos/customer-api:ro" -v "%cd%\ticket-api\Linux64\Release:/opt/eventos/ticket-api:ro" -v "%cd%\api-gateway\Linux64\Release:/opt/eventos/api-gateway:ro" -v "%cd%\linux:/opt/eventos/scripts:ro" eventos-servidor-linux sleep infinity
+docker exec eventos-linux sh /opt/eventos/scripts/start-all.sh

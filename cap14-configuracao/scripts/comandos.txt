@@ -1,0 +1,9 @@
+rem Comandos do capitulo 14, na ordem do livro. Rode no Prompt de Comando (cmd),
+rem a partir da pasta do capitulo. Linhas com "rem" sao so comentarios.
+
+rem ---- Testando
+set PORT=9302
+CustomerApi.exe
+set APP_ENV=production
+TicketApi.exe
+echo %ERRORLEVEL%

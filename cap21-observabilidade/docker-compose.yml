@@ -23,7 +23,10 @@ x-service: &service
 services:
   postgres:
     image: postgres:17
+    # O banco no mesmo fuso dos serviços (horário local do evento).
+    command: ["postgres", "-c", "timezone=America/Sao_Paulo"]
     environment:
+      TZ: America/Sao_Paulo
       POSTGRES_USER: eventos
       POSTGRES_PASSWORD: ${DB_PASSWORD:?defina DB_PASSWORD no arquivo .env}
       POSTGRES_DB: eventos

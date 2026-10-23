@@ -68,6 +68,14 @@ spec:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
           # Enquanto sobe (migrações incluídas), só esta sonda vale.
+          # Ao apagar um Pod, o Kubernetes envia o SIGTERM e, ao mesmo tempo, tira o
+          # Pod do Service. Por um instante, ainda chegam conexões novas. Os 3
+          # segundos de espera antes do SIGTERM dão tempo para todos pararem de
+          # mandar tráfego para cá (capítulo 19).
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "3"]
           startupProbe:
             httpGet:
               path: /health/live

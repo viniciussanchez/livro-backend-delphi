@@ -1,0 +1,15 @@
+rem Comandos do capitulo 13, na ordem do livro. Rode no Prompt de Comando (cmd),
+rem a partir da pasta do capitulo. Linhas com "rem" sao so comentarios.
+
+rem ---- Testando
+curl -i -X POST http://localhost:9001/venues -H "Content-Type: application/json" -d "{\"name\":\"Arena\",\"address\":\"Rua A, 1\",\"city\":\"BH\",\"state\":\"MG\",\"capacity\":500}"
+curl -X POST http://localhost:9002/auth/token -H "Content-Type: application/json" -d "{\"email\":\"admin@eventos.local\",\"password\":\"admin12345\"}"
+set ADMIN=eyJhbGciOi...cole-aqui-o-token-inteiro
+curl -X POST http://localhost:9001/venues -H "Authorization: Bearer %ADMIN%" -H "Content-Type: application/json" -d "{\"name\":\"Arena\",\"address\":\"Rua A, 1\",\"city\":\"BH\",\"state\":\"MG\",\"capacity\":500}"
+curl -X POST http://localhost:9002/customers -H "Content-Type: application/json" -d "{\"cpf\":\"529.982.247-25\",\"name\":\"Ana Souza\",\"email\":\"ana@exemplo.com\",\"password\":\"senha-da-ana\"}"
+curl -X POST http://localhost:9002/auth/token -H "Content-Type: application/json" -d "{\"email\":\"ana@exemplo.com\",\"password\":\"senha-da-ana\"}"
+curl -X POST http://localhost:9001/venues -H "Authorization: Bearer %ANA%" -H "Content-Type: application/json" -d "{\"name\":\"Arena\",\"address\":\"Rua A, 1\",\"city\":\"BH\",\"state\":\"MG\",\"capacity\":500}"
+curl -X POST http://localhost:9001/events -H "Authorization: Bearer %ADMIN%" -H "Content-Type: application/json" -d "{\"name\":\"Show de Estreia\",\"categoryId\":1,\"venueId\":1,\"startAt\":\"2099-03-10T20:00:00\"}"
+curl -X POST http://localhost:9001/events/1/batches -H "Authorization: Bearer %ADMIN%" -H "Content-Type: application/json" -d "{\"name\":\"Pista\",\"price\":150,\"quantity\":10,\"salesStart\":\"2020-01-01T00:00:00\",\"salesEnd\":\"2099-03-01T00:00:00\"}"
+curl -X POST http://localhost:9001/events/1/publish -H "Authorization: Bearer %ADMIN%"
+curl -i -X POST http://localhost:9003/reservations -H "Authorization: Bearer %ANA%" -H "Content-Type: application/json" -d "{\"batchId\":1,\"quantity\":2}"

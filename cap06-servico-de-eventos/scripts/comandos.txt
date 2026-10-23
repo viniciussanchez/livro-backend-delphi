@@ -1,0 +1,17 @@
+rem Comandos do capitulo 6, na ordem do livro. Rode no Prompt de Comando (cmd),
+rem a partir da pasta do capitulo. Linhas com "rem" sao so comentarios.
+
+rem ---- Testando a API
+curl http://localhost:9001/categories
+curl -i -X POST http://localhost:9001/categories -H "Content-Type: application/json" -d "{\"name\":\"show\"}"
+curl -i -X POST http://localhost:9001/venues -H "Content-Type: application/json" -d "{\"name\":\"Palácio das Artes\",\"address\":\"Av. Afonso Pena, 1537\",\"city\":\"Belo Horizonte\",\"state\":\"mg\",\"capacity\":500}"
+curl -i -X POST http://localhost:9001/events -H "Content-Type: application/json" -d "{\"name\":\"Delphi Conference\",\"description\":\"Um dia inteiro de Delphi\",\"categoryId\":2,\"venueId\":1,\"startAt\":\"2099-12-10T19:00:00\"}"
+curl -i -X POST http://localhost:9001/events/1/publish
+curl -i -X POST http://localhost:9001/events/1/batches -H "Content-Type: application/json" -d "{\"name\":\"1o lote\",\"price\":150.5,\"quantity\":400,\"salesStart\":\"2020-01-01T00:00:00\",\"salesEnd\":\"2099-11-15T23:59:59\"}"
+curl -i -X POST http://localhost:9001/events/1/batches -H "Content-Type: application/json" -d "{\"name\":\"2o lote\",\"price\":200,\"quantity\":200,\"salesStart\":\"2099-11-16T00:00:00\",\"salesEnd\":\"2099-12-09T23:59:59\"}"
+curl -i -X POST http://localhost:9001/events/1/batches -H "Content-Type: application/json" -d "{\"name\":\"2o lote\",\"price\":200,\"quantity\":100,\"salesStart\":\"2099-11-16T00:00:00\",\"salesEnd\":\"2099-12-09T23:59:59\"}"
+curl -i -X POST http://localhost:9001/events/1/publish
+curl http://localhost:9001/events/1
+curl "http://localhost:9001/events?city=belo%20horizonte&category=2&from=2099-12-01&to=2099-12-10"
+curl "http://localhost:9001/events?from=2100-01-01"
+docker exec eventos-postgres psql -U eventos -d event_db -c "select version, description from schema_migration order by version"

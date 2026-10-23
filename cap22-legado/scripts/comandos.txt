@@ -1,0 +1,6 @@
+rem Comandos do capitulo 22, na ordem do livro. Rode no Prompt de Comando (cmd),
+rem a partir da pasta do capitulo. Linhas com "rem" sao so comentarios.
+
+rem ---- Testando
+curl http://localhost:9004/health
+curl -X POST http://localhost:9004/sync/full-load -H "Authorization: Bearer %ADMIN%"

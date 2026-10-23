@@ -13,6 +13,7 @@ uses
   Horse,
   Platform.Http,
   Platform.Auth,
+  Platform.Exceptions,
   Platform.Dates,
   Platform.Validation,
   EventApi.Entity.Event,
@@ -21,6 +22,23 @@ uses
   EventApi.Repository.Event,
   EventApi.Service.Event,
   EventApi.Container;
+
+// Rascunhos são do organizador: só a administração (e os outros serviços da
+// plataforma, como a ticket-api) enxergam eventos que ainda não foram publicados.
+function CanSeeDrafts(const AReq: THorseRequest): Boolean;
+var
+  LUser: TPrincipal;
+begin
+  Result := TryCurrentUser(AReq, LUser) and LUser.HasRole([ROLE_ADMIN, ROLE_SERVICE]);
+end;
+
+// Para quem não pode ver rascunhos, um rascunho simplesmente não existe:
+// 404, pelo mesmo motivo do "404 em vez de 403" das reservas.
+procedure EnsureVisible(const AReq: THorseRequest; const AEvent: TEvent);
+begin
+  if (AEvent.Status = esDraft) and not CanSeeDrafts(AReq) then
+    raise ENotFoundException.Create('Evento não encontrado.');
+end;
 
 // Converte a query string da listagem em um TEventFilter.
 // ?city=Belo Horizonte&category=1&from=2026-11-01&to=2026-11-30&status=published
@@ -61,6 +79,10 @@ begin
   end;
 
   LValidation.RaiseIfInvalid;
+
+  // A vitrine é pública; rascunhos (status=draft ou all) são só da administração.
+  if ((not Result.FilterByStatus) or (Result.Status = esDraft)) and not CanSeeDrafts(AReq) then
+    raise EForbiddenException.Create('Somente a administração lista eventos em rascunho.');
 end;
 
 // GET /events
@@ -86,6 +108,7 @@ begin
   LService := EventService;
   LEvent := LService.FindById(ParseId(Req.Params['id']));
   try
+    EnsureVisible(Req, LEvent);
     LBatches := LService.FindBatches(LEvent.Id);
     try
       Res.Send<TJSONObject>(TEventMapper.ToDetailJSON(LEvent, LBatches));
@@ -132,9 +155,18 @@ end;
 // GET /events/:id/batches
 procedure GetBatches(Req: THorseRequest; Res: THorseResponse);
 var
+  LService: IEventService;
+  LEvent: TEvent;
   LBatches: TObjectList<TBatch>;
 begin
-  LBatches := EventService.FindBatches(ParseId(Req.Params['id']));
+  LService := EventService;
+  LEvent := LService.FindById(ParseId(Req.Params['id']));
+  try
+    EnsureVisible(Req, LEvent);
+  finally
+    LEvent.Free;
+  end;
+  LBatches := LService.FindBatches(ParseId(Req.Params['id']));
   try
     Res.Send<TJSONArray>(TBatchMapper.ToJSONArray(LBatches));
   finally
@@ -169,6 +201,7 @@ begin
   try
     LEvent := LService.FindById(LBatch.EventId);
     try
+      EnsureVisible(Req, LEvent);
       Res.Send<TJSONObject>(TBatchMapper.ToCatalogJSON(LBatch, LEvent));
     finally
       LEvent.Free;
@@ -180,11 +213,12 @@ end;
 
 procedure Registry;
 begin
-  // Consultas são públicas: é a vitrine da plataforma.
-  THorse.Get('/events', GetEvents);
-  THorse.Get('/events/:id', GetEventById);
-  THorse.Get('/events/:id/batches', GetBatches);
-  THorse.Get('/batches/:id', GetBatchById);
+  // Consultas são públicas: é a vitrine da plataforma. O token é opcional:
+  // com ele, a administração enxerga também os rascunhos.
+  THorse.AddCallback(OptionalAuth()).Get('/events', GetEvents);
+  THorse.AddCallback(OptionalAuth()).Get('/events/:id', GetEventById);
+  THorse.AddCallback(OptionalAuth()).Get('/events/:id/batches', GetBatches);
+  THorse.AddCallback(OptionalAuth()).Get('/batches/:id', GetBatchById);
   // Alterações, só administradores.
   THorse.AddCallbacks(Protect([ROLE_ADMIN])).Post('/events', PostEvent);
   THorse.AddCallbacks(Protect([ROLE_ADMIN])).Post('/events/:id/publish', PublishEvent);
